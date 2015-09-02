@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>zaber_device</name>
+  <name>zaber_device_ros</name>
   <version>0.0.0</version>
-  <description>The zaber_device package</description>
+  <description>The zaber_device_ros package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -20,7 +20,8 @@
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
   <url type="website">https://github.com/janelia-ros/zaber_device_ros</url>
-
+  <url type="bugtracker">https://github.com/janelia-ros/zaber_device_ros/issues</url>
+  <url type="repository">https://github.com/janelia-ros/zaber_device_ros</url>
 
   <!-- Author tags are optional, mutiple are allowed, one per tag -->
   <!-- Authors do not have to be maintianers, but could be -->
@@ -41,7 +42,9 @@
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend>
   <run_depend>rospy</run_depend>
+  <run_depend>std_msgs</run_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

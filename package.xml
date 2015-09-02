@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>zaber_device_ros</name>
+  <name>zaber_device</name>
   <version>0.0.0</version>
-  <description>The zaber_device_ros package</description>
+  <description>The zaber_device package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->

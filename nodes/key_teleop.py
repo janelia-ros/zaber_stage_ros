@@ -46,26 +46,31 @@ class TextWindow():
         curses.flash()
 
 class KeyTeleop():
-    def __init__(self, interface):
-        self._interface = interface
-        self._pub_cmd = rospy.Publisher('key_vel', Twist)
-
-        self._hz = rospy.get_param('~hz', 10)
-
-        self._x_positive_rate = rospy.get_param('~x_positive_rate', 1000)
-        self._x_negative_rate = rospy.get_param('~x_negative_rate', -1000)
-        self._y_positive_rate = rospy.get_param('~y_positive_rate', 1000)
-        self._y_negative_rate = rospy.get_param('~y_negative_rate', -1000)
-        self._last_pressed = {}
-        self._x_rate = 0
-        self._y_rate = 0
-
     movement_bindings = {
         curses.KEY_UP:    ( 1,  0),
         curses.KEY_DOWN:  (-1,  0),
         curses.KEY_LEFT:  ( 0,  1),
         curses.KEY_RIGHT: ( 0, -1),
     }
+
+    def __init__(self, interface):
+        self._interface = interface
+        self._pub_cmd = rospy.Publisher('key_vel', Twist)
+
+        self._hz = rospy.get_param('~hz', 10)
+
+        self._up_x_rate = rospy.get_param('~up_x_rate', 0)
+        self._up_y_rate = rospy.get_param('~up_y_rate', 1000)
+        self._down_x_rate = rospy.get_param('~down_x_rate', 0)
+        self._down_y_rate = rospy.get_param('~down_y_rate', -1000)
+        self._left_x_rate = rospy.get_param('~left_x_rate', -1000)
+        self._left_y_rate = rospy.get_param('~left_y_rate', 0)
+        self._right_x_rate = rospy.get_param('~right_x_rate', 1000)
+        self._right_y_rate = rospy.get_param('~right_y_rate', 0)
+        self._last_pressed = {}
+        self._x_rate = 0
+        self._y_rate = 0
+        self._update_display()
 
     def run(self):
         rate = rospy.Rate(self._hz)
@@ -78,6 +83,7 @@ class KeyTeleop():
                 self._key_pressed(keycode)
                 self._set_velocity()
                 self._publish()
+                self._update_display()
                 rate.sleep()
 
     def _get_twist(self, x_rate, y_rate):
@@ -92,22 +98,24 @@ class KeyTeleop():
         for a in self._last_pressed:
             if now - self._last_pressed[a] < 0.4:
                 keys.append(a)
-        x_rate = 0
-        y_rate = 0
+        up_down = 0
+        left_right = 0
         for k in keys:
-            x,y = self.movement_bindings[k]
-            x_rate += x
-            y_rate += y
-        if x_rate > 0:
-            x_rate = x_rate * self._x_positive_rate
+            ud,lr = self.movement_bindings[k]
+            up_down += ud
+            left_right += lr
+        if up_down > 0:
+            self._x_rate += abs(up_down)*self._up_x_rate
+            self._y_rate += abs(up_down)*self._up_y_rate
         else:
-            x_rate = x_rate * self._x_negative_rate
-        if y_rate > 0:
-            y_rate = y_rate * self._x_positive_rate
+            self._x_rate += abs(up_down)*self._down_x_rate
+            self._y_rate += abs(up_down)*self._down_y_rate
+        if left_right > 0:
+            self._x_rate += abs(left_right)*self._left_x_rate
+            self._y_rate += abs(left_right)*self._left_y_rate
         else:
-            y_rate = y_rate * self._x_negative_rate
-        self._x_rate += x_rate
-        self._y_rate += y_rate
+            self._x_rate += abs(left_right)*self._right_x_rate
+            self._y_rate += abs(left_right)*self._right_y_rate
 
     def _key_pressed(self, keycode):
         if keycode == ord('q'):
@@ -117,13 +125,14 @@ class KeyTeleop():
             self._last_pressed[keycode] = rospy.get_time()
 
     def _publish(self):
+        twist = self._get_twist(self._x_rate, self._y_rate)
+        self._pub_cmd.publish(twist)
+
+    def _update_display(self):
         self._interface.clear()
-        self._interface.write_line(2, 'X Rate: %f, Y Rate: %f' % (self._x_rate, self._y_rate))
+        self._interface.write_line(2, 'X Rate: %d, Y Rate: %d' % (self._x_rate, self._y_rate))
         self._interface.write_line(5, 'Use arrow keys to move, q to exit.')
         self._interface.refresh()
-
-        twist = self._get_twist(self._linear, self._angular)
-        self._pub_cmd.publish(twist)
 
 
 def main(stdscr):

@@ -205,8 +205,8 @@ class SimpleKeyTeleop():
                 if keycode is None:
                     break
                 self._key_pressed(keycode)
-            self._set_velocity()
-            self._publish()
+                self._set_velocity()
+                self._publish()
             rate.sleep()
 
     def _get_twist(self, linear, angular):

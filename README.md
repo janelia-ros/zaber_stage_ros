@@ -1,5 +1,5 @@
-zaber_device_ros
-================
+zaber_stage
+===========
 
 Authors:
 

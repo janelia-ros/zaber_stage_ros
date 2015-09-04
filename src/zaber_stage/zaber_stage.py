@@ -8,9 +8,19 @@ import zaber_device
 class ZaberStage(object):
     def __init__(self,*args,**kwargs):
         self._devs = zaber_device.ZaberDevices()
+        self.x_axis = None
+        self.y_axis = None
+        self.z_axis = None
 
-    def get_info(self):
-        for dev in self._devs:
-            serial_number = dev.get_serial_number()
+    def get_aliases(self):
+        aliases = {}
+        for serial_number in self._devs:
+            dev = self._devs[serial_number]
             alias = dev.get_alias()
-            print('serial_number: {0}, alias: {1}'.format(serial_number,alias))
+            aliases[serial_number] = alias
+        return aliases
+
+    def home(self):
+        for serial_number in self._devs:
+            dev = self._devs[serial_number]
+            dev.home()

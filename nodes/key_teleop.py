@@ -54,7 +54,7 @@ class KeyTeleop():
 
     def __init__(self, interface):
         self._interface = interface
-        self._pub_cmd = rospy.Publisher('key_vel', Twist)
+        self._pub_cmd = rospy.Publisher('/stage/cmd_vel', Twist)
 
         self._hz = rospy.get_param('~hz', 10)
 
@@ -121,6 +121,7 @@ class KeyTeleop():
             self._running = False
             rospy.signal_shutdown('Bye')
         elif keycode in self.movement_bindings:
+            print keycode
             self._last_pressed[keycode] = rospy.get_time()
 
     def _publish(self):

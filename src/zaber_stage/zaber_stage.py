@@ -99,6 +99,7 @@ class ZaberStage(object):
             ax = self._y_axis
         elif axis == 'z':
             ax = self._z_axis
+        speed = int(speed)
         if ax is not None:
             dev = ax['dev']
             alias = ax['alias']

@@ -3,7 +3,7 @@
 #
 from __future__ import print_function, division
 
-from zaber_stage import ZaberStage
+from zaber_device import ZaberStage
 
 import rospy
 from geometry_msgs.msg import Twist,Pose

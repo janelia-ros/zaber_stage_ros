@@ -54,7 +54,7 @@ class KeyTeleop():
 
     def __init__(self, interface):
         self._interface = interface
-        self._pub_cmd = rospy.Publisher('/stage/cmd_vel', Twist, queue_size=10)
+        self._pub_cmd = rospy.Publisher('/zaber_stage_controller/cmd_vel', Twist, queue_size=10)
 
         self._hz = rospy.get_param('~hz', 10)
 

@@ -43,8 +43,9 @@
   <buildtool_depend>catkin</buildtool_depend>
   <depend>rospy</depend>
   <depend>geometry_msgs</depend>
+  <build_depend>message_generation</build_depend>
+  <depend>message_runtime</depend>
   <depend>python-zaber-device</depend>
-
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

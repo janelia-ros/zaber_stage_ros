@@ -1,21 +1,21 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-from __future__ import print_function, division
+from __future__ import print_function,division
 
 from zaber_device import ZaberStage
 
 import rospy
 from geometry_msgs.msg import Twist,Pose
 
+from zaber_stage.srv import GetPose,GetPoseResponse
 
-class ZaberStageNode(object):
+class ZaberStageController(object):
     def __init__(self,*args,**kwargs):
-        rospy.loginfo('Initializing zaber_stage_node...')
+        rospy.loginfo('Initializing zaber_stage_controller...')
         self._initialized = False
-        self._rate = rospy.Rate(10) # 10hz
-        self._pub = rospy.Publisher('/stage/pose', Pose, queue_size=10)
-        self._sub = rospy.Subscriber('/stage/cmd_vel',Twist,self.cmd_vel_callback)
+        self._cmd_vel_sub = rospy.Subscriber('~cmd_vel',Twist,self._cmd_vel_callback)
+        self._get_pose_srv = rospy.Service('~get_pose',GetPose,self._get_pose_callback)
         x_serial_number = rospy.get_param('~x_serial_number', None)
         if x_serial_number == '':
             x_serial_number = None
@@ -42,7 +42,7 @@ class ZaberStageNode(object):
         if (z_serial_number is not None) and (z_alias is not None):
             axis_set = True
         if not axis_set:
-            err_str = "Not enough stage axis arguments specified! (x_serial_number,x_alias,y_serial_number,y_alias,z_serial_number,z_alias)"
+            err_str = "Not enough zaber_stage_controller axis arguments specified! (x_serial_number,x_alias,y_serial_number,y_alias,z_serial_number,z_alias)"
             rospy.signal_shutdown(err_str)
             rospy.logerr(err_str)
         else:
@@ -53,23 +53,20 @@ class ZaberStageNode(object):
                 self._stage.set_y_axis(y_serial_number,y_alias)
             if (z_serial_number is not None) and (z_alias is not None):
                 self._stage.set_z_axis(z_serial_number,z_alias)
-            rospy.loginfo('zaber_stage_node initialized!')
+            rospy.loginfo('zaber_stage_controller initialized!')
             self._initialized = True
 
-    def publish_pose(self):
+    def _get_pose_callback(self,req):
         while not self._initialized:
             self._rate.sleep()
-        while not rospy.is_shutdown():
-            pose = Pose()
-            positions = self._stage.get_positions()
-            if (positions[0] is not None) and (positions[1] is not None) and (positions[2] is not None):
-                pose.position.x = positions[0]
-                pose.position.y = positions[1]
-                pose.position.z = positions[2]
-                self._pub.publish(pose)
-            self._rate.sleep()
+        pose = Pose()
+        positions = self._stage.get_positions()
+        pose.position.x = positions[0]
+        pose.position.y = positions[1]
+        pose.position.z = positions[2]
+        return GetPoseResponse(pose)
 
-    def cmd_vel_callback(self,data):
+    def _cmd_vel_callback(self,data):
         if self._initialized:
             x_vel = data.linear.x
             y_vel = data.linear.y
@@ -80,8 +77,8 @@ class ZaberStageNode(object):
 
 if __name__ == '__main__':
     try:
-        rospy.init_node('zaber_stage_node')
-        zsn = ZaberStageNode()
-        zsn.publish_pose()
+        rospy.init_node('zaber_stage_controller')
+        zsc = ZaberStageController()
+        rospy.spin()
     except rospy.ROSInterruptException:
         pass

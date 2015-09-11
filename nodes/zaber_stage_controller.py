@@ -7,18 +7,25 @@ from zaber_device import ZaberStage
 
 import rospy
 from geometry_msgs.msg import Twist,Pose
+import actionlib
 
 from zaber_stage.srv import GetPose,GetPoseResponse
 from zaber_stage.srv import Moving,MovingResponse
+
+from zaber_stage.msg import EmptyAction,EmptyFeedback
 
 
 class ZaberStageController(object):
     def __init__(self,*args,**kwargs):
         rospy.loginfo('Initializing zaber_stage_controller...')
         self._initialized = False
+        self._rate = rospy.Rate(1)
+
         self._cmd_vel_sub = rospy.Subscriber('~cmd_vel',Twist,self._cmd_vel_callback)
         self._get_pose_srv = rospy.Service('~get_pose',GetPose,self._get_pose_callback)
         self._moving_srv = rospy.Service('~moving',Moving,self._moving_callback)
+        self._home_action = actionlib.SimpleActionServer('~home', EmptyAction, self._home_callback, False)
+
         x_serial_number = rospy.get_param('~x_serial_number', None)
         if x_serial_number == '':
             x_serial_number = None
@@ -57,6 +64,7 @@ class ZaberStageController(object):
             if (z_serial_number is not None) and (z_alias is not None):
                 self._stage.set_z_axis(z_serial_number,z_alias)
             rospy.loginfo('zaber_stage_controller initialized!')
+            self._home_action.start()
             self._initialized = True
 
     def _cmd_vel_callback(self,data):
@@ -87,6 +95,19 @@ class ZaberStageController(object):
         res.y = moving[1]
         res.z = moving[2]
         return res
+
+    def _home_callback(self,req):
+        while not self._initialized:
+            self._rate.sleep()
+        self._stage.home()
+        finished = False
+        while not finished:
+            positions = self._stage.get_positions()
+            at_zero = [position == 0 for position in positions]
+            finished = all(at_zero)
+            if not finished:
+                self._rate.sleep()
+        self._home_action.set_succeeded()
 
 
 if __name__ == '__main__':

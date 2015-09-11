@@ -8,6 +8,7 @@ from zaber_device import ZaberStage
 import rospy
 from geometry_msgs.msg import Twist,Pose
 import actionlib
+from std_msgs.msg import Empty
 
 from zaber_stage.srv import GetPose,GetPoseResponse
 from zaber_stage.srv import Moving,MovingResponse
@@ -22,6 +23,9 @@ class ZaberStageController(object):
         self._rate = rospy.Rate(1)
 
         self._cmd_vel_sub = rospy.Subscriber('~cmd_vel',Twist,self._cmd_vel_callback)
+        self._stop_x_sub = rospy.Subscriber('~stop_x',Empty,self._stop_x_callback)
+        self._stop_y_sub = rospy.Subscriber('~stop_y',Empty,self._stop_y_callback)
+        self._stop_z_sub = rospy.Subscriber('~stop_z',Empty,self._stop_z_callback)
         self._get_pose_srv = rospy.Service('~get_pose',GetPose,self._get_pose_callback)
         self._moving_srv = rospy.Service('~moving',Moving,self._moving_callback)
         self._home_action = actionlib.SimpleActionServer('~home', EmptyAction, self._home_callback, False)
@@ -75,6 +79,18 @@ class ZaberStageController(object):
             self._stage.move_x_at_speed(x_vel)
             self._stage.move_y_at_speed(y_vel)
             self._stage.move_z_at_speed(z_vel)
+
+    def _stop_x_callback(self,data):
+        if self._initialized:
+            self._stage.stop_x()
+
+    def _stop_y_callback(self,data):
+        if self._initialized:
+            self._stage.stop_y()
+
+    def _stop_z_callback(self,data):
+        if self._initialized:
+            self._stage.stop_z()
 
     def _get_pose_callback(self,req):
         while not self._initialized:

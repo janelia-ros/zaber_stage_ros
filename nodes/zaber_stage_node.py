@@ -11,16 +11,15 @@ from geometry_msgs.msg import Twist,Pose
 
 class ZaberStageNode(object):
     def __init__(self,*args,**kwargs):
-        print('Initializing...')
+        rospy.loginfo('Initializing zaber_stage_node...')
         self._initialized = False
-        rospy.init_node('zaber_stage_node', anonymous=True)
         self._rate = rospy.Rate(10) # 10hz
         self._pub = rospy.Publisher('/stage/pose', Pose, queue_size=10)
         self._sub = rospy.Subscriber('/stage/cmd_vel',Twist,self.cmd_vel_callback)
         self._stage = ZaberStage()
         self._stage.set_x_axis(123,10)
         self._stage.set_y_axis(123,11)
-        print('Initialized!')
+        rospy.loginfo('zaber_stage_node initialized!')
         self._initialized = True
 
     def publish_pose(self):
@@ -46,6 +45,7 @@ class ZaberStageNode(object):
 
 if __name__ == '__main__':
     try:
+        rospy.init_node('zaber_stage_node')
         zsn = ZaberStageNode()
         zsn.publish_pose()
     except rospy.ROSInterruptException:

@@ -54,7 +54,7 @@ class KeyTeleop():
 
     def __init__(self, interface):
         self._interface = interface
-        self._pub_cmd = rospy.Publisher('/stage/cmd_vel', Twist)
+        self._pub_cmd = rospy.Publisher('/stage/cmd_vel', Twist, queue_size=10)
 
         self._hz = rospy.get_param('~hz', 10)
 
@@ -74,16 +74,15 @@ class KeyTeleop():
     def run(self):
         rate = rospy.Rate(self._hz)
         self._running = True
-        while self._running:
-            while True:
-                keycode = self._interface.read_key()
-                if keycode is None:
-                    break
-                self._key_pressed(keycode)
-                self._set_velocity()
-                self._publish()
-                self._update_display()
-                rate.sleep()
+        while self._running and not rospy.is_shutdown():
+            keycode = self._interface.read_key()
+            if keycode is None:
+                break
+            self._key_pressed(keycode)
+            self._set_velocity()
+            self._publish()
+            self._update_display()
+            rate.sleep()
 
     def _get_twist(self, x_rate, y_rate):
         twist = Twist()
@@ -117,7 +116,7 @@ class KeyTeleop():
             self._y_rate += abs(left_right)*self._right_y_rate
 
     def _key_pressed(self, keycode):
-        if keycode == ord('q'):
+        if (keycode == ord('q')) or (keycode == ord('c')):
             self._running = False
             rospy.signal_shutdown('Bye')
         elif keycode in self.movement_bindings:
@@ -131,7 +130,7 @@ class KeyTeleop():
     def _update_display(self):
         self._interface.clear()
         self._interface.write_line(2, 'X Rate: %d, Y Rate: %d' % (self._x_rate, self._y_rate))
-        self._interface.write_line(5, 'Use arrow keys to move, q to exit.')
+        self._interface.write_line(5, 'Use arrow keys to move stage, q or ctrl-c to exit.')
         self._interface.refresh()
 
 

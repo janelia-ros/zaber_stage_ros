@@ -57,6 +57,7 @@ roslaunch_add_file_check(launch)
 add_service_files(
   FILES
   GetPose.srv
+  Moving.srv
 )
 
 ## Generate actions in the 'action' folder

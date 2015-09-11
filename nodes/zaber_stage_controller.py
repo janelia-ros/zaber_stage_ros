@@ -9,6 +9,8 @@ import rospy
 from geometry_msgs.msg import Twist,Pose
 
 from zaber_stage.srv import GetPose,GetPoseResponse
+from zaber_stage.srv import Moving,MovingResponse
+
 
 class ZaberStageController(object):
     def __init__(self,*args,**kwargs):
@@ -16,6 +18,7 @@ class ZaberStageController(object):
         self._initialized = False
         self._cmd_vel_sub = rospy.Subscriber('~cmd_vel',Twist,self._cmd_vel_callback)
         self._get_pose_srv = rospy.Service('~get_pose',GetPose,self._get_pose_callback)
+        self._moving_srv = rospy.Service('~moving',Moving,self._moving_callback)
         x_serial_number = rospy.get_param('~x_serial_number', None)
         if x_serial_number == '':
             x_serial_number = None
@@ -56,6 +59,15 @@ class ZaberStageController(object):
             rospy.loginfo('zaber_stage_controller initialized!')
             self._initialized = True
 
+    def _cmd_vel_callback(self,data):
+        if self._initialized:
+            x_vel = data.linear.x
+            y_vel = data.linear.y
+            z_vel = data.linear.z
+            self._stage.move_x_at_speed(x_vel)
+            self._stage.move_y_at_speed(y_vel)
+            self._stage.move_z_at_speed(z_vel)
+
     def _get_pose_callback(self,req):
         while not self._initialized:
             self._rate.sleep()
@@ -66,14 +78,16 @@ class ZaberStageController(object):
         pose.position.z = positions[2]
         return GetPoseResponse(pose)
 
-    def _cmd_vel_callback(self,data):
-        if self._initialized:
-            x_vel = data.linear.x
-            y_vel = data.linear.y
-            z_vel = data.linear.z
-            self._stage.move_x_at_speed(x_vel)
-            self._stage.move_y_at_speed(y_vel)
-            self._stage.move_z_at_speed(z_vel)
+    def _moving_callback(self,req):
+        while not self._initialized:
+            self._rate.sleep()
+        res = MovingResponse()
+        moving = self._stage.moving()
+        res.x = moving[0]
+        res.y = moving[1]
+        res.z = moving[2]
+        return res
+
 
 if __name__ == '__main__':
     try:

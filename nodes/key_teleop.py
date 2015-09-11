@@ -75,14 +75,15 @@ class KeyTeleop():
         rate = rospy.Rate(self._hz)
         self._running = True
         while self._running and not rospy.is_shutdown():
-            keycode = self._interface.read_key()
-            if keycode is None:
-                break
-            self._key_pressed(keycode)
-            self._set_velocity()
-            self._publish()
-            self._update_display()
-            rate.sleep()
+            while True:
+                keycode = self._interface.read_key()
+                if keycode is None:
+                    break
+                self._key_pressed(keycode)
+                self._set_velocity()
+                self._publish()
+                self._update_display()
+                rate.sleep()
 
     def _get_twist(self, x_rate, y_rate):
         twist = Twist()

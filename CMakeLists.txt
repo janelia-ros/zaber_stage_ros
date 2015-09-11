@@ -66,6 +66,7 @@ add_service_files(
 add_action_files(
   FILES
   Empty.action
+  Move.action
 )
 
 ## Generate added messages and services with any dependencies listed here

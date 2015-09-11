@@ -13,14 +13,15 @@ from std_msgs.msg import Empty
 from zaber_stage.srv import GetPose,GetPoseResponse
 from zaber_stage.srv import Moving,MovingResponse
 
-from zaber_stage.msg import EmptyAction,EmptyFeedback
+from zaber_stage.msg import EmptyAction
+from zaber_stage.msg import MoveAction
 
 
 class ZaberStageController(object):
     def __init__(self,*args,**kwargs):
         rospy.loginfo('Initializing zaber_stage_controller...')
         self._initialized = False
-        self._rate = rospy.Rate(1)
+        self._rate = rospy.Rate(4)
 
         self._cmd_vel_sub = rospy.Subscriber('~cmd_vel',Twist,self._cmd_vel_callback)
         self._stop_x_sub = rospy.Subscriber('~stop_x',Empty,self._stop_x_callback)
@@ -29,6 +30,8 @@ class ZaberStageController(object):
         self._get_pose_srv = rospy.Service('~get_pose',GetPose,self._get_pose_callback)
         self._moving_srv = rospy.Service('~moving',Moving,self._moving_callback)
         self._home_action = actionlib.SimpleActionServer('~home', EmptyAction, self._home_callback, False)
+        self._move_relative_action = actionlib.SimpleActionServer('~move_relative', MoveAction, self._move_relative_callback, False)
+        self._move_absolute_action = actionlib.SimpleActionServer('~move_absolute', MoveAction, self._move_absolute_callback, False)
 
         x_serial_number = rospy.get_param('~x_serial_number', None)
         if x_serial_number == '':
@@ -69,6 +72,8 @@ class ZaberStageController(object):
                 self._stage.set_z_axis(z_serial_number,z_alias)
             rospy.loginfo('zaber_stage_controller initialized!')
             self._home_action.start()
+            self._move_relative_action.start()
+            self._move_absolute_action.start()
             self._initialized = True
 
     def _cmd_vel_callback(self,data):
@@ -124,6 +129,40 @@ class ZaberStageController(object):
             if not finished:
                 self._rate.sleep()
         self._home_action.set_succeeded()
+
+    def _move_relative_callback(self,req):
+        while not self._initialized:
+            self._rate.sleep()
+        rospy.loginfo("move_relative: x={0}, y={1}, z={2}".format(req.pose.position.x,
+                                                                  req.pose.position.y,
+                                                                  req.pose.position.z))
+        self._stage.move_x_relative(req.pose.position.x)
+        self._stage.move_y_relative(req.pose.position.y)
+        self._stage.move_z_relative(req.pose.position.z)
+        finished = False
+        while not finished:
+            moving = self._stage.moving()
+            finished = not any(moving)
+            if not finished:
+                self._rate.sleep()
+        self._move_relative_action.set_succeeded()
+
+    def _move_absolute_callback(self,req):
+        while not self._initialized:
+            self._rate.sleep()
+        rospy.loginfo("move_absolute: x={0}, y={1}, z={2}".format(req.pose.position.x,
+                                                                  req.pose.position.y,
+                                                                  req.pose.position.z))
+        self._stage.move_x_absolute(req.pose.position.x)
+        self._stage.move_y_absolute(req.pose.position.y)
+        self._stage.move_z_absolute(req.pose.position.z)
+        finished = False
+        while not finished:
+            moving = self._stage.moving()
+            finished = not any(moving)
+            if not finished:
+                self._rate.sleep()
+        self._move_absolute_action.set_succeeded()
 
 
 if __name__ == '__main__':

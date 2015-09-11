@@ -16,9 +16,19 @@ class ZaberStageNode(object):
         self._rate = rospy.Rate(10) # 10hz
         self._pub = rospy.Publisher('/stage/pose', Pose, queue_size=10)
         self._sub = rospy.Subscriber('/stage/cmd_vel',Twist,self.cmd_vel_callback)
+        x_serial_number = rospy.get_param('/stage/x_serial_number', None)
+        x_alias = rospy.get_param('/stage/x_alias', None)
+        y_serial_number = rospy.get_param('/stage/y_serial_number', None)
+        y_alias = rospy.get_param('/stage/y_alias', None)
+        z_serial_number = rospy.get_param('/stage/z_serial_number', None)
+        z_alias = rospy.get_param('/stage/z_alias', None)
         self._stage = ZaberStage()
-        self._stage.set_x_axis(123,10)
-        self._stage.set_y_axis(123,11)
+        if (x_serial_number is not None) and (x_alias is not None):
+            self._stage.set_x_axis(x_serial_number,x_alias)
+        if (y_serial_number is not None) and (y_alias is not None):
+            self._stage.set_y_axis(y_serial_number,y_alias)
+        if (z_serial_number is not None) and (z_alias is not None):
+            self._stage.set_y_axis(z_serial_number,z_alias)
         rospy.loginfo('zaber_stage_node initialized!')
         self._initialized = True
 

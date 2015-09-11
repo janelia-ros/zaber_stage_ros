@@ -1,0 +1,7 @@
+<launch>
+  <param name="/stage/x_serial_number" value="123" type="int" />
+  <param name="/stage/x_alias" value="10" type="int" />
+  <param name="/stage/y_serial_number" value="123" type="int" />
+  <param name="/stage/y_alias" value="11" type="int" />
+  <node name="zaber_stage_node" pkg="zaber_stage" type="zaber_stage_node.py" />
+</launch>

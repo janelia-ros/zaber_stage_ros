@@ -10,7 +10,7 @@ import actionlib
 from zaber_stage.msg import EmptyAction,EmptyActionGoal
 
 def home_client():
-    client = actionlib.SimpleActionClient('/zaber_stage_controller/home', EmptyAction)
+    client = actionlib.SimpleActionClient('/zaber_stage_node/home', EmptyAction)
 
     client.wait_for_server()
 

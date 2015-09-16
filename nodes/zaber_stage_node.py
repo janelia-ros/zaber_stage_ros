@@ -19,7 +19,7 @@ from zaber_stage.msg import MoveAction
 
 class ZaberStageController(object):
     def __init__(self,*args,**kwargs):
-        rospy.loginfo('Initializing zaber_stage_controller...')
+        rospy.loginfo('Initializing zaber_stage_node...')
         self._initialized = False
         self._rate = rospy.Rate(4)
 
@@ -59,7 +59,7 @@ class ZaberStageController(object):
         if (z_serial_number is not None) and (z_alias is not None):
             axis_set = True
         if not axis_set:
-            err_str = "Not enough zaber_stage_controller axis arguments specified! (x_serial_number,x_alias,y_serial_number,y_alias,z_serial_number,z_alias)"
+            err_str = "Not enough zaber_stage_node axis arguments specified! (x_serial_number,x_alias,y_serial_number,y_alias,z_serial_number,z_alias)"
             rospy.signal_shutdown(err_str)
             rospy.logerr(err_str)
         else:
@@ -70,7 +70,7 @@ class ZaberStageController(object):
                 self._stage.set_y_axis(y_serial_number,y_alias)
             if (z_serial_number is not None) and (z_alias is not None):
                 self._stage.set_z_axis(z_serial_number,z_alias)
-            rospy.loginfo('zaber_stage_controller initialized!')
+            rospy.loginfo('zaber_stage_node initialized!')
             self._home_action.start()
             self._move_relative_action.start()
             self._move_absolute_action.start()
@@ -167,7 +167,7 @@ class ZaberStageController(object):
 
 if __name__ == '__main__':
     try:
-        rospy.init_node('zaber_stage_controller')
+        rospy.init_node('zaber_stage_node')
         zsc = ZaberStageController()
         rospy.spin()
     except rospy.ROSInterruptException:

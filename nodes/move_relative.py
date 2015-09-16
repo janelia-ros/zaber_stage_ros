@@ -11,7 +11,7 @@ from geometry_msgs.msg import Pose
 from zaber_stage.msg import MoveAction,MoveGoal
 
 def move_relative_client():
-    client = actionlib.SimpleActionClient('/zaber_stage_controller/move_relative', MoveAction)
+    client = actionlib.SimpleActionClient('/zaber_stage_node/move_relative', MoveAction)
 
     client.wait_for_server()
 

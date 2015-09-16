@@ -5,7 +5,7 @@
   <arg name="y_alias" default=""/>
   <arg name="z_serial_number" default=""/>
   <arg name="z_alias" default=""/>
-  <node name="zaber_stage_controller" pkg="zaber_stage" type="zaber_stage_controller.py">
+  <node name="zaber_stage_node" pkg="zaber_stage" type="zaber_stage_node.py">
     <param name="x_serial_number" value="$(arg x_serial_number)"/>
     <param name="x_alias" value="$(arg x_alias)"/>
     <param name="y_serial_number" value="$(arg y_serial_number)"/>

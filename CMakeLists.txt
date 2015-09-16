@@ -13,6 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib_msgs
 )
 
+roslaunch_add_file_check(launch)
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -21,8 +23,6 @@ find_package(catkin REQUIRED COMPONENTS
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
 # catkin_python_setup()
-
-roslaunch_add_file_check(launch)
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -108,8 +108,8 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES zaber_device_ros
-#  CATKIN_DEPENDS rospy
+#  LIBRARIES zaber_stage
+#  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
  CATKIN_DEPENDS actionlib_msgs
 )
@@ -120,30 +120,29 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-# include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
-# add_library(zaber_device_ros
-#   src/${PROJECT_NAME}/zaber_device_ros.cpp
+# add_library(zaber_stage
+#   src/${PROJECT_NAME}/zaber_stage.cpp
 # )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-# add_dependencies(zaber_device_ros ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(zaber_stage ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-# add_executable(zaber_device_ros_node src/zaber_device_ros_node.cpp)
+# add_executable(zaber_stage_node src/zaber_stage_node.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(zaber_device_ros_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(zaber_stage_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(zaber_device_ros_node
+# target_link_libraries(zaber_stage_node
 #   ${catkin_LIBRARIES}
 # )
 
@@ -162,7 +161,7 @@ include_directories(
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS zaber_device_ros zaber_device_ros_node
+# install(TARGETS zaber_stage zaber_stage_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -187,7 +186,7 @@ include_directories(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_zaber_device_ros.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_zaber_stage.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

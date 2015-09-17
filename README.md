@@ -1,5 +1,5 @@
-zaber_stage
-===========
+zaber_stage_ros
+===============
 
 Authors:
 

@@ -136,7 +136,7 @@ class KeyTeleop():
 
 
 def main(stdscr):
-    rospy.init_node('key_teleop')
+    rospy.init_node('stage_key_teleop')
     app = KeyTeleop(TextWindow(stdscr))
     app.run()
 

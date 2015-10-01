@@ -39,18 +39,22 @@ class ZaberStageController(object):
         x_alias = rospy.get_param('~x_alias', None)
         if x_alias == '':
             x_alias = None
+        x_microstep_size = rospy.get_param('~x_microstep_size', 1)
         y_serial_number = rospy.get_param('~y_serial_number', None)
         if y_serial_number == '':
             y_serial_number = None
         y_alias = rospy.get_param('~y_alias', None)
         if y_alias == '':
             y_alias = None
+        y_microstep_size = rospy.get_param('~y_microstep_size', 1)
         z_serial_number = rospy.get_param('~z_serial_number', None)
         if z_serial_number == '':
             z_serial_number = None
         z_alias = rospy.get_param('~z_alias', None)
         if z_alias == '':
             z_alias = None
+        z_microstep_size = rospy.get_param('~z_microstep_size', 1)
+
         axis_set = False
         if (x_serial_number is not None) and (x_alias is not None):
             axis_set = True
@@ -70,6 +74,9 @@ class ZaberStageController(object):
                 self._stage.set_y_axis(y_serial_number,y_alias)
             if (z_serial_number is not None) and (z_alias is not None):
                 self._stage.set_z_axis(z_serial_number,z_alias)
+            self._stage.set_x_microstep_size(x_microstep_size)
+            self._stage.set_y_microstep_size(y_microstep_size)
+            self._stage.set_z_microstep_size(z_microstep_size)
             rospy.loginfo('zaber_stage_node initialized!')
             self._home_action.start()
             self._move_relative_action.start()

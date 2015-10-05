@@ -27,6 +27,7 @@ class ZaberStageController(object):
         self._stop_x_sub = rospy.Subscriber('~stop_x',Empty,self._stop_x_callback)
         self._stop_y_sub = rospy.Subscriber('~stop_y',Empty,self._stop_y_callback)
         self._stop_z_sub = rospy.Subscriber('~stop_z',Empty,self._stop_z_callback)
+        self._stop_sub = rospy.Subscriber('~stop',Empty,self.stop)
         self._get_pose_srv = rospy.Service('~get_pose',GetPose,self._get_pose_callback)
         self._moving_srv = rospy.Service('~moving',Moving,self._moving_callback)
         self._home_action = actionlib.SimpleActionServer('~home', EmptyAction, self._home_callback, False)
@@ -171,6 +172,12 @@ class ZaberStageController(object):
                 self._rate.sleep()
         self._move_absolute_action.set_succeeded()
 
+    def stop(self):
+        if self._initialized:
+            self._stage.stop_x()
+            self._stage.stop_y()
+            self._stage.stop_z()
+
 
 if __name__ == '__main__':
     try:
@@ -179,3 +186,5 @@ if __name__ == '__main__':
         rospy.spin()
     except rospy.ROSInterruptException:
         pass
+    finally:
+        zsc.stop()

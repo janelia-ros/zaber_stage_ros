@@ -129,6 +129,7 @@ class ZaberStageController(object):
         while not self._initialized:
             self._rate.sleep()
         self._stage.home()
+        rospy.sleep(2)
         finished = False
         while not finished:
             positions = self._stage.get_positions()

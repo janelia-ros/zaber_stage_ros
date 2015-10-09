@@ -34,3 +34,7 @@ roslaunch zaber_stage zaber_stage.launch x_serial_number:=123 x_alias:=10 x_micr
 ```shell
 rosrun zaber_stage key_teleop.py _up_y_rate:=5 _down_y_rate:=-5 _left_x_rate:=-5 _right_x_rate:=5
 ```
+
+##Zaber Device Python Module
+
+For more information, see [zaber_device_python](https://github.com/janelia-pypi/zaber_device_python)

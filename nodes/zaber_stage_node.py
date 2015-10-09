@@ -33,6 +33,8 @@ class ZaberStageController(object):
         self._home_action = actionlib.SimpleActionServer('~home', EmptyAction, self._home_callback, False)
         self._move_relative_action = actionlib.SimpleActionServer('~move_relative', MoveAction, self._move_relative_callback, False)
         self._move_absolute_action = actionlib.SimpleActionServer('~move_absolute', MoveAction, self._move_absolute_callback, False)
+        self._move_relative_percent_action = actionlib.SimpleActionServer('~move_relative_percent', MoveAction, self._move_relative_percent_callback, False)
+        self._move_absolute_percent_action = actionlib.SimpleActionServer('~move_absolute_percent', MoveAction, self._move_absolute_percent_callback, False)
 
         x_serial_number = rospy.get_param('~x_serial_number', None)
         if x_serial_number == '':
@@ -41,6 +43,9 @@ class ZaberStageController(object):
         if x_alias == '':
             x_alias = None
         x_microstep_size = rospy.get_param('~x_microstep_size', 1)
+        x_travel = rospy.get_param('~x_travel', None)
+        if x_travel == '':
+            x_travel = None
         y_serial_number = rospy.get_param('~y_serial_number', None)
         if y_serial_number == '':
             y_serial_number = None
@@ -48,6 +53,9 @@ class ZaberStageController(object):
         if y_alias == '':
             y_alias = None
         y_microstep_size = rospy.get_param('~y_microstep_size', 1)
+        y_travel = rospy.get_param('~y_travel', None)
+        if y_travel == '':
+            y_travel = None
         z_serial_number = rospy.get_param('~z_serial_number', None)
         if z_serial_number == '':
             z_serial_number = None
@@ -55,6 +63,9 @@ class ZaberStageController(object):
         if z_alias == '':
             z_alias = None
         z_microstep_size = rospy.get_param('~z_microstep_size', 1)
+        z_travel = rospy.get_param('~z_travel', None)
+        if z_travel == '':
+            z_travel = None
 
         axis_set = False
         if (x_serial_number is not None) and (x_alias is not None):
@@ -78,10 +89,18 @@ class ZaberStageController(object):
             self._stage.set_x_microstep_size(x_microstep_size)
             self._stage.set_y_microstep_size(y_microstep_size)
             self._stage.set_z_microstep_size(z_microstep_size)
+            if x_travel is not None:
+                self._stage.set_x_travel(x_travel)
+            if y_travel is not None:
+                self._stage.set_y_travel(y_travel)
+            if z_travel is not None:
+                self._stage.set_z_travel(z_travel)
             rospy.loginfo('zaber_stage_node initialized!')
             self._home_action.start()
             self._move_relative_action.start()
             self._move_absolute_action.start()
+            self._move_relative_percent_action.start()
+            self._move_absolute_percent_action.start()
             self._initialized = True
 
     def _cmd_vel_callback(self,data):
@@ -183,11 +202,45 @@ class ZaberStageController(object):
                 self._rate.sleep()
         self._move_absolute_action.set_succeeded()
 
+    def _move_relative_percent_callback(self,req):
+        while not self._initialized:
+            self._rate.sleep()
+        rospy.loginfo("move_relative_percent: x={0}%, y={1}%, z={2}%".format(req.pose.position.x,
+                                                                             req.pose.position.y,
+                                                                             req.pose.position.z))
+        self._stage.move_x_relative_percent(req.pose.position.x)
+        self._stage.move_y_relative_percent(req.pose.position.y)
+        self._stage.move_z_relative_percent(req.pose.position.z)
+        finished = False
+        while not finished:
+            moving = self._stage.moving()
+            finished = not any(moving)
+            if not finished:
+                self._rate.sleep()
+        self._move_relative_percent_action.set_succeeded()
+
+    def _move_absolute_percent_callback(self,req):
+        while not self._initialized:
+            self._rate.sleep()
+        rospy.loginfo("move_absolute_percent: x={0}%, y={1}%, z={2}%".format(req.pose.position.x,
+                                                                             req.pose.position.y,
+                                                                             req.pose.position.z))
+        self._stage.move_x_absolute_percent(req.pose.position.x)
+        self._stage.move_y_absolute_percent(req.pose.position.y)
+        self._stage.move_z_absolute_percent(req.pose.position.z)
+        finished = False
+        while not finished:
+            moving = self._stage.moving()
+            finished = not any(moving)
+            if not finished:
+                self._rate.sleep()
+        self._move_absolute_percent_action.set_succeeded()
+
 
 if __name__ == '__main__':
+    rospy.init_node('zaber_stage_node')
+    zsc = ZaberStageController()
     try:
-        rospy.init_node('zaber_stage_node')
-        zsc = ZaberStageController()
         rospy.spin()
     except rospy.ROSInterruptException:
         pass

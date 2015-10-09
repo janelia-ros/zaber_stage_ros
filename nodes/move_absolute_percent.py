@@ -11,7 +11,7 @@ from geometry_msgs.msg import Pose
 from zaber_stage.msg import MoveAction,MoveGoal
 
 def move_absolute_client():
-    client = actionlib.SimpleActionClient('/zaber_stage_node/move_absolute', MoveAction)
+    client = actionlib.SimpleActionClient('/zaber_stage_node/move_absolute_percent', MoveAction)
 
     client.wait_for_server()
 
@@ -32,9 +32,9 @@ def move_absolute_client():
 
 if __name__ == '__main__':
     try:
-        rospy.init_node('zaber_stage_move_absolute')
-        rospy.loginfo('zaber_stage moving absolute...')
+        rospy.init_node('zaber_stage_move_absolute_percent')
+        rospy.loginfo('zaber_stage moving absolute percent...')
         result = move_absolute_client()
-        rospy.loginfo('zaber_stage move absolute finished!')
+        rospy.loginfo('zaber_stage move absolute percent finished!')
     except rospy.ROSInterruptException:
         print "program interrupted before completion"

@@ -2,21 +2,27 @@
   <arg name="x_serial_number" default=""/>
   <arg name="x_alias" default=""/>
   <arg name="x_microstep_size" default="1"/>
+  <arg name="x_travel" default=""/>
   <arg name="y_serial_number" default=""/>
   <arg name="y_alias" default=""/>
   <arg name="y_microstep_size" default="1"/>
+  <arg name="y_travel" default=""/>
   <arg name="z_serial_number" default=""/>
   <arg name="z_alias" default=""/>
   <arg name="z_microstep_size" default="1"/>
+  <arg name="z_travel" default=""/>
   <node name="zaber_stage_node" pkg="zaber_stage" type="zaber_stage_node.py">
     <param name="x_serial_number" value="$(arg x_serial_number)"/>
     <param name="x_alias" value="$(arg x_alias)"/>
     <param name="x_microstep_size" value="$(arg x_microstep_size)"/>
+    <param name="x_travel" value="$(arg x_travel)"/>
     <param name="y_serial_number" value="$(arg y_serial_number)"/>
     <param name="y_alias" value="$(arg y_alias)"/>
     <param name="y_microstep_size" value="$(arg y_microstep_size)"/>
+    <param name="y_travel" value="$(arg y_travel)"/>
     <param name="z_serial_number" value="$(arg z_serial_number)"/>
     <param name="z_alias" value="$(arg z_alias)"/>
     <param name="z_microstep_size" value="$(arg z_microstep_size)"/>
+    <param name="z_travel" value="$(arg z_travel)"/>
   </node>
 </launch>

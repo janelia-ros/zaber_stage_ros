@@ -16,8 +16,12 @@ def move_relative_client():
     client.wait_for_server()
 
     pose = Pose()
-    pose.position.x = 1000
-    pose.position.y = 2000
+    x = rospy.get_param('~x', None)
+    if x is not None:
+        pose.position.x = x
+    y = rospy.get_param('~y', None)
+    if y is not None:
+        pose.position.y = y
     goal = MoveGoal(pose=pose)
 
     client.send_goal(goal)

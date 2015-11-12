@@ -161,9 +161,9 @@ class ZaberStageController(object):
         rospy.sleep(2)
         finished = False
         while not finished:
-            positions = self._stage.get_positions()
-            at_zero = [position == 0 for position in positions]
-            finished = all(at_zero)
+            homed = self._stage.homed()
+            print(homed)
+            finished = all(homed)
             if not finished:
                 self._rate.sleep()
         self._home_action.set_succeeded()

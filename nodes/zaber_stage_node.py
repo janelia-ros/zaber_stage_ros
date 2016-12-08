@@ -12,6 +12,7 @@ from std_msgs.msg import Empty
 
 from zaber_stage.srv import GetPose,GetPoseResponse
 from zaber_stage.srv import Moving,MovingResponse
+from zaber_stage.srv import GetPoseAndDebugInfo,GetPoseAndDebugInfoResponse
 
 from zaber_stage.msg import EmptyAction
 from zaber_stage.msg import MoveAction
@@ -30,6 +31,7 @@ class ZaberStageController(object):
         self._stop_sub = rospy.Subscriber('~stop',Empty,self._stop_callback)
         self._get_pose_srv = rospy.Service('~get_pose',GetPose,self._get_pose_callback)
         self._moving_srv = rospy.Service('~moving',Moving,self._moving_callback)
+        self._get_pose_and_debug_info_srv = rospy.Service('~get_pose_and_debug_info',GetPoseAndDebugInfo,self._get_pose_and_debug_info_callback)
         self._home_action = actionlib.SimpleActionServer('~home', EmptyAction, self._home_callback, False)
         self._move_relative_action = actionlib.SimpleActionServer('~move_relative', MoveAction, self._move_relative_callback, False)
         self._move_absolute_action = actionlib.SimpleActionServer('~move_absolute', MoveAction, self._move_absolute_callback, False)
@@ -152,6 +154,20 @@ class ZaberStageController(object):
         res.x = moving[0]
         res.y = moving[1]
         res.z = moving[2]
+        return res
+
+    def _get_pose_and_debug_info_callback(self,req):
+        while not self._initialized:
+            self._rate.sleep()
+        res = PoseAndDebugInfoResponse()
+        positions_and_debug = self._stage.get_positions_and_debug_info()
+        res.pose.position.x = positions_and_debug['position'][0]
+        res.pose.position.y = positions_and_debug['position'][1]
+        res.pose.position.z = positions_and_debug['position'][2]
+        res.pose_microsteps.position.x = positions_and_debug['position_microsteps'][0]
+        res.pose_microsteps.position.y = positions_and_debug['position_microsteps'][1]
+        res.pose_microsteps.position.z = positions_and_debug['position_microsteps'][2]
+        res.zaber_response = positions_and_debug['response']
         return res
 
     def _home_callback(self,req):

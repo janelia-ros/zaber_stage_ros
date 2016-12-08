@@ -25,5 +25,6 @@
     <param name="z_microstep_size" value="$(arg z_microstep_size)"/>
     <param name="z_travel" value="$(arg z_travel)"/>
   </node>
-  <node name="zaber_stage_pose_publisher" pkg="zaber_stage" type="pose_publisher.py" />
+  <!-- <node name="zaber_stage_pose_publisher" pkg="zaber_stage" type="pose_publisher.py" /> -->
+  <node name="zaber_stage_pose_and_debug_publisher" pkg="zaber_stage" type="pose_and_debug_publisher.py" />
 </launch>

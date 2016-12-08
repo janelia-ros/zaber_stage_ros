@@ -1,3 +1,3 @@
 geometry_msgs/Pose pose
-geometry_msgs/Pose pose_microsteps
+geometry_msgs/Pose pose_microstep
 string zaber_response

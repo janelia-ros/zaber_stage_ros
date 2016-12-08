@@ -159,15 +159,15 @@ class ZaberStageController(object):
     def _get_pose_and_debug_info_callback(self,req):
         while not self._initialized:
             self._rate.sleep()
-        res = PoseAndDebugInfoResponse()
+        res = GetPoseAndDebugInfoResponse()
         positions_and_debug = self._stage.get_positions_and_debug_info()
-        res.pose.position.x = positions_and_debug['position'][0]
-        res.pose.position.y = positions_and_debug['position'][1]
-        res.pose.position.z = positions_and_debug['position'][2]
-        res.pose_microsteps.position.x = positions_and_debug['position_microsteps'][0]
-        res.pose_microsteps.position.y = positions_and_debug['position_microsteps'][1]
-        res.pose_microsteps.position.z = positions_and_debug['position_microsteps'][2]
-        res.zaber_response = positions_and_debug['response']
+        res.pose_and_debug_info.pose.position.x = positions_and_debug['position'][0]
+        res.pose_and_debug_info.pose.position.y = positions_and_debug['position'][1]
+        res.pose_and_debug_info.pose.position.z = positions_and_debug['position'][2]
+        res.pose_and_debug_info.pose_microstep.position.x = positions_and_debug['position_microstep'][0]
+        res.pose_and_debug_info.pose_microstep.position.y = positions_and_debug['position_microstep'][1]
+        res.pose_and_debug_info.pose_microstep.position.z = positions_and_debug['position_microstep'][2]
+        res.pose_and_debug_info.zaber_response = positions_and_debug['response']
         return res
 
     def _home_callback(self,req):

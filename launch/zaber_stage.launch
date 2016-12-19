@@ -11,6 +11,7 @@
   <arg name="z_alias" default=""/>
   <arg name="z_microstep_size" default="1"/>
   <arg name="z_travel" default=""/>
+  <arg name="serial_port" default="serial_port"/>
   <node name="zaber_stage_node" pkg="zaber_stage" type="zaber_stage_node.py">
     <param name="x_serial_number" value="$(arg x_serial_number)"/>
     <param name="x_alias" value="$(arg x_alias)"/>
@@ -24,6 +25,7 @@
     <param name="z_alias" value="$(arg z_alias)"/>
     <param name="z_microstep_size" value="$(arg z_microstep_size)"/>
     <param name="z_travel" value="$(arg z_travel)"/>
+    <param name="serial_port" value="$(arg serial_port)"/>
   </node>
   <!-- <node name="zaber_stage_pose_publisher" pkg="zaber_stage" type="pose_publisher.py" /> -->
   <node name="zaber_stage_pose_and_debug_publisher" pkg="zaber_stage" type="pose_and_debug_publisher.py" />

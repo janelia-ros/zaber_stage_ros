@@ -81,7 +81,11 @@ class ZaberStageController(object):
             rospy.signal_shutdown(err_str)
             rospy.logerr(err_str)
         else:
-            self._stage = ZaberStage()
+            serial_port = rospy.get_param('~serial_port', None)
+            if serial_port is not None:
+                self._stage = ZaberStage(port=serial_port)
+            else:
+                self._stage = ZaberStage()
             if (x_serial_number is not None) and (x_alias is not None):
                 self._stage.set_x_axis(x_serial_number,x_alias)
             if (y_serial_number is not None) and (y_alias is not None):

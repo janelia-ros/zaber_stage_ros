@@ -172,6 +172,7 @@ class ZaberStageController(object):
         res.pose_and_debug_info.pose_microstep.position.y = positions_and_debug['position_microstep'][1]
         res.pose_and_debug_info.pose_microstep.position.z = positions_and_debug['position_microstep'][2]
         res.pose_and_debug_info.zaber_response = positions_and_debug['response']
+        res.pose_and_debug_info.zaber_response_time = positions_and_debug['response_time']
         return res
 
     def _home_callback(self,req):

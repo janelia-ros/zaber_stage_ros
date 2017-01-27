@@ -1,3 +1,4 @@
 geometry_msgs/Pose pose
 geometry_msgs/Pose pose_microstep
 string zaber_response
+float64 zaber_response_time

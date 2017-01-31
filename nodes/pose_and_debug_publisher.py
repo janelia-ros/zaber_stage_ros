@@ -6,6 +6,8 @@ import roslib; roslib.load_manifest('zaber_stage')
 import rospy
 import actionlib
 
+import time
+
 from geometry_msgs.msg import Pose
 from zaber_stage.msg import PoseAndDebugInfo
 from zaber_stage.srv import GetPoseAndDebugInfo,GetPoseAndDebugInfoResponse
@@ -22,8 +24,10 @@ def pose_publisher():
         try:
             response = get_pose_and_debug_info()
             pub_pose.publish(response.pose_and_debug_info.pose)
+            response.pose_and_debug_info.zaber_publish_time = time.time()
             pub_pose_and_debug.publish(response.pose_and_debug_info)
         except rospy.ServiceException, e:
+            rospy.logwarn('zaber_stage pose_and_debug_publisher service call failed! %s'%e)
             print "Service call failed: %s"%e
         rate.sleep()
 

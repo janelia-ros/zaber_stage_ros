@@ -5,6 +5,8 @@ from __future__ import print_function,division
 
 from zaber_device import ZaberStage
 
+import time
+
 import rospy
 from geometry_msgs.msg import Twist,Pose
 import actionlib
@@ -173,6 +175,7 @@ class ZaberStageController(object):
         res.pose_and_debug_info.pose_microstep.position.z = positions_and_debug['position_microstep'][2]
         res.pose_and_debug_info.zaber_response = positions_and_debug['response']
         res.pose_and_debug_info.zaber_response_time = positions_and_debug['response_time']
+        res.pose_and_debug_info.zaber_service_time = time.time()
         return res
 
     def _home_callback(self,req):

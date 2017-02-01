@@ -6,8 +6,6 @@ import roslib; roslib.load_manifest('zaber_stage')
 import rospy
 import actionlib
 
-import time
-
 from geometry_msgs.msg import Pose
 from zaber_stage.msg import PoseAndDebugInfo
 from zaber_stage.srv import GetPoseAndDebugInfo,GetPoseAndDebugInfoResponse
@@ -19,13 +17,13 @@ def pose_publisher():
     pub_pose = rospy.Publisher('/zaber_stage_node/pose',Pose,queue_size=10)
     pub_pose_and_debug = rospy.Publisher('/zaber_stage_node/pose_and_debug_info',PoseAndDebugInfo,queue_size=10)
     rospy.wait_for_service('/zaber_stage_node/get_pose_and_debug_info')
-    get_pose_and_debug_info = rospy.ServiceProxy('/zaber_stage_node/get_pose_and_debug_info',GetPoseAndDebugInfo)
+    get_pose_and_debug_info = rospy.ServiceProxy('/zaber_stage_node/get_pose_and_debug_info',GetPoseAndDebugInfo,persistent=True)
     while not rospy.is_shutdown():
         try:
             response = get_pose_and_debug_info()
-            pub_pose.publish(response.pose_and_debug_info.pose)
-            response.pose_and_debug_info.zaber_publish_time = time.time()
-            pub_pose_and_debug.publish(response.pose_and_debug_info)
+            if not response.pose_and_debug_info.zaber_response_error:
+                pub_pose.publish(response.pose_and_debug_info.pose)
+                pub_pose_and_debug.publish(response.pose_and_debug_info)
         except rospy.ServiceException, e:
             rospy.logwarn('zaber_stage pose_and_debug_publisher service call failed! %s'%e)
             print "Service call failed: %s"%e

@@ -3,9 +3,7 @@
 #
 from __future__ import print_function,division
 
-from zaber_device import ZaberStage
-
-import time
+from zaber_device import ZaberStage,ZaberError
 
 import rospy
 from geometry_msgs.msg import Twist,Pose
@@ -83,54 +81,69 @@ class ZaberStageController(object):
             rospy.signal_shutdown(err_str)
             rospy.logerr(err_str)
         else:
-            serial_port = rospy.get_param('~serial_port', None)
-            if (serial_port is not None) and (len(serial_port) > 0):
-                self._stage = ZaberStage(port=serial_port)
-            else:
-                self._stage = ZaberStage()
-            if (x_serial_number is not None) and (x_alias is not None):
-                self._stage.set_x_axis(x_serial_number,x_alias)
-            if (y_serial_number is not None) and (y_alias is not None):
-                self._stage.set_y_axis(y_serial_number,y_alias)
-            if (z_serial_number is not None) and (z_alias is not None):
-                self._stage.set_z_axis(z_serial_number,z_alias)
-            self._stage.set_x_microstep_size(x_microstep_size)
-            self._stage.set_y_microstep_size(y_microstep_size)
-            self._stage.set_z_microstep_size(z_microstep_size)
-            if x_travel is not None:
-                self._stage.set_x_travel(x_travel)
-            if y_travel is not None:
-                self._stage.set_y_travel(y_travel)
-            if z_travel is not None:
-                self._stage.set_z_travel(z_travel)
-            rospy.loginfo('zaber_stage_node initialized!')
-            self._home_action.start()
-            self._move_relative_action.start()
-            self._move_absolute_action.start()
-            self._move_relative_percent_action.start()
-            self._move_absolute_percent_action.start()
-            self._initialized = True
+            try:
+                serial_port = rospy.get_param('~serial_port', None)
+                if (serial_port is not None) and (len(serial_port) > 0):
+                    self._stage = ZaberStage(port=serial_port)
+                else:
+                    self._stage = ZaberStage()
+                if (x_serial_number is not None) and (x_alias is not None):
+                    self._stage.set_x_axis(x_serial_number,x_alias)
+                if (y_serial_number is not None) and (y_alias is not None):
+                    self._stage.set_y_axis(y_serial_number,y_alias)
+                if (z_serial_number is not None) and (z_alias is not None):
+                    self._stage.set_z_axis(z_serial_number,z_alias)
+                self._stage.set_x_microstep_size(x_microstep_size)
+                self._stage.set_y_microstep_size(y_microstep_size)
+                self._stage.set_z_microstep_size(z_microstep_size)
+                if x_travel is not None:
+                    self._stage.set_x_travel(x_travel)
+                if y_travel is not None:
+                    self._stage.set_y_travel(y_travel)
+                if z_travel is not None:
+                    self._stage.set_z_travel(z_travel)
+                rospy.loginfo('zaber_stage_node initialized!')
+                self._home_action.start()
+                self._move_relative_action.start()
+                self._move_absolute_action.start()
+                self._move_relative_percent_action.start()
+                self._move_absolute_percent_action.start()
+                self._initialized = True
+            except ZaberError:
+                rospy.logwarn('zaber_stage_node init ZaberError')
 
     def _cmd_vel_callback(self,data):
         if self._initialized:
-            x_vel = data.linear.x
-            y_vel = data.linear.y
-            z_vel = data.linear.z
-            self._stage.move_x_at_speed(x_vel)
-            self._stage.move_y_at_speed(y_vel)
-            self._stage.move_z_at_speed(z_vel)
+            try:
+                x_vel = data.linear.x
+                y_vel = data.linear.y
+                z_vel = data.linear.z
+                self._stage.move_x_at_speed(x_vel)
+                self._stage.move_y_at_speed(y_vel)
+                self._stage.move_z_at_speed(z_vel)
+            except ZaberError:
+                rospy.logwarn('zaber_stage_node _cmd_vel_callback ZaberError')
 
     def _stop_x_callback(self,data):
         if self._initialized:
-            self._stage.stop_x()
+            try:
+                self._stage.stop_x()
+            except ZaberError:
+                rospy.logwarn('zaber_stage_node _stop_x_callback ZaberError')
 
     def _stop_y_callback(self,data):
         if self._initialized:
-            self._stage.stop_y()
+            try:
+                self._stage.stop_y()
+            except ZaberError:
+                rospy.logwarn('zaber_stage_node _stop_y_callback ZaberError')
 
     def _stop_z_callback(self,data):
         if self._initialized:
-            self._stage.stop_z()
+            try:
+                self._stage.stop_z()
+            except ZaberError:
+                rospy.logwarn('zaber_stage_node _stop_z_callback ZaberError')
 
     def _stop_callback(self,data):
         if self._initialized:
@@ -138,59 +151,75 @@ class ZaberStageController(object):
 
     def stop(self):
         if self._initialized:
-            self._stage.stop_x()
-            self._stage.stop_y()
-            self._stage.stop_z()
+            try:
+                self._stage.stop_x()
+                self._stage.stop_y()
+                self._stage.stop_z()
+            except ZaberError:
+                rospy.logwarn('zaber_stage_node stop ZaberError')
 
     def _get_pose_callback(self,req):
         while not self._initialized:
             self._rate.sleep()
         pose = Pose()
-        positions = self._stage.get_positions()
-        pose.position.x = positions[0]
-        pose.position.y = positions[1]
-        pose.position.z = positions[2]
+        try:
+            positions = self._stage.get_positions()
+            pose.position.x = positions[0]
+            pose.position.y = positions[1]
+            pose.position.z = positions[2]
+        except ZaberError:
+            rospy.logwarn('zaber_stage_node _get_pose_callback ZaberError')
         return GetPoseResponse(pose)
 
     def _moving_callback(self,req):
         while not self._initialized:
             self._rate.sleep()
         res = MovingResponse()
-        moving = self._stage.moving()
-        res.x = moving[0]
-        res.y = moving[1]
-        res.z = moving[2]
+        try:
+            moving = self._stage.moving()
+            res.x = moving[0]
+            res.y = moving[1]
+            res.z = moving[2]
+        except ZaberError:
+            rospy.logwarn('zaber_stage_node _moving_callback ZaberError')
         return res
 
     def _get_pose_and_debug_info_callback(self,req):
         while not self._initialized:
             self._rate.sleep()
         res = GetPoseAndDebugInfoResponse()
-        positions_and_debug = self._stage.get_positions_and_debug_info()
-        res.pose_and_debug_info.pose.position.x = positions_and_debug['position'][0]
-        res.pose_and_debug_info.pose.position.y = positions_and_debug['position'][1]
-        res.pose_and_debug_info.pose.position.z = positions_and_debug['position'][2]
-        res.pose_and_debug_info.pose_microstep.position.x = positions_and_debug['position_microstep'][0]
-        res.pose_and_debug_info.pose_microstep.position.y = positions_and_debug['position_microstep'][1]
-        res.pose_and_debug_info.pose_microstep.position.z = positions_and_debug['position_microstep'][2]
-        res.pose_and_debug_info.zaber_response = positions_and_debug['response']
-        res.pose_and_debug_info.zaber_response_time = positions_and_debug['response_time']
-        res.pose_and_debug_info.zaber_service_time = time.time()
+        try:
+            positions_and_debug = self._stage.get_positions_and_debug_info()
+            res.pose_and_debug_info.pose.position.x = positions_and_debug['position'][0]
+            res.pose_and_debug_info.pose.position.y = positions_and_debug['position'][1]
+            res.pose_and_debug_info.pose.position.z = positions_and_debug['position'][2]
+            res.pose_and_debug_info.pose_microstep.position.x = positions_and_debug['position_microstep'][0]
+            res.pose_and_debug_info.pose_microstep.position.y = positions_and_debug['position_microstep'][1]
+            res.pose_and_debug_info.pose_microstep.position.z = positions_and_debug['position_microstep'][2]
+            res.pose_and_debug_info.zaber_response = positions_and_debug['response']
+            res.pose_and_debug_info.zaber_response_time = positions_and_debug['response_time']
+            res.pose_and_debug_info.zaber_response_error = False
+        except ZaberError:
+            rospy.logwarn('zaber_stage_node _get_pose_and_debug_info_callback ZaberError')
+            res.pose_and_debug_info.zaber_response_error = True
         return res
 
     def _home_callback(self,req):
         while not self._initialized:
             self._rate.sleep()
-        self._stage.home()
-        rospy.sleep(2)
-        finished = False
-        while not finished:
-            homed = self._stage.homed()
-            print(homed)
-            finished = all(homed)
-            if not finished:
-                self._rate.sleep()
-        self._home_action.set_succeeded()
+        try:
+            self._stage.home()
+            rospy.sleep(2)
+            finished = False
+            while not finished:
+                homed = self._stage.homed()
+                print(homed)
+                finished = all(homed)
+                if not finished:
+                    self._rate.sleep()
+            self._home_action.set_succeeded()
+        except ZaberError:
+            rospy.logwarn('zaber_stage_node _home_callback ZaberError')
 
     def _move_relative_callback(self,req):
         while not self._initialized:
@@ -198,16 +227,19 @@ class ZaberStageController(object):
         rospy.loginfo("move_relative: x={0}, y={1}, z={2}".format(req.pose.position.x,
                                                                   req.pose.position.y,
                                                                   req.pose.position.z))
-        self._stage.move_x_relative(req.pose.position.x)
-        self._stage.move_y_relative(req.pose.position.y)
-        self._stage.move_z_relative(req.pose.position.z)
-        finished = False
-        while not finished:
-            moving = self._stage.moving()
-            finished = not any(moving)
-            if not finished:
-                self._rate.sleep()
-        self._move_relative_action.set_succeeded()
+        try:
+            self._stage.move_x_relative(req.pose.position.x)
+            self._stage.move_y_relative(req.pose.position.y)
+            self._stage.move_z_relative(req.pose.position.z)
+            finished = False
+            while not finished:
+                moving = self._stage.moving()
+                finished = not any(moving)
+                if not finished:
+                    self._rate.sleep()
+            self._move_relative_action.set_succeeded()
+        except ZaberError:
+            rospy.logwarn('zaber_stage_node _move_relative_callback ZaberError')
 
     def _move_absolute_callback(self,req):
         while not self._initialized:
@@ -215,16 +247,19 @@ class ZaberStageController(object):
         rospy.loginfo("move_absolute: x={0}, y={1}, z={2}".format(req.pose.position.x,
                                                                   req.pose.position.y,
                                                                   req.pose.position.z))
-        self._stage.move_x_absolute(req.pose.position.x)
-        self._stage.move_y_absolute(req.pose.position.y)
-        self._stage.move_z_absolute(req.pose.position.z)
-        finished = False
-        while not finished:
-            moving = self._stage.moving()
-            finished = not any(moving)
-            if not finished:
-                self._rate.sleep()
-        self._move_absolute_action.set_succeeded()
+        try:
+            self._stage.move_x_absolute(req.pose.position.x)
+            self._stage.move_y_absolute(req.pose.position.y)
+            self._stage.move_z_absolute(req.pose.position.z)
+            finished = False
+            while not finished:
+                moving = self._stage.moving()
+                finished = not any(moving)
+                if not finished:
+                    self._rate.sleep()
+            self._move_absolute_action.set_succeeded()
+        except ZaberError:
+            rospy.logwarn('zaber_stage_node _move_absolute_callback ZaberError')
 
     def _move_relative_percent_callback(self,req):
         while not self._initialized:
@@ -232,16 +267,19 @@ class ZaberStageController(object):
         rospy.loginfo("move_relative_percent: x={0}%, y={1}%, z={2}%".format(req.pose.position.x,
                                                                              req.pose.position.y,
                                                                              req.pose.position.z))
-        self._stage.move_x_relative_percent(req.pose.position.x)
-        self._stage.move_y_relative_percent(req.pose.position.y)
-        self._stage.move_z_relative_percent(req.pose.position.z)
-        finished = False
-        while not finished:
-            moving = self._stage.moving()
-            finished = not any(moving)
-            if not finished:
-                self._rate.sleep()
-        self._move_relative_percent_action.set_succeeded()
+        try:
+            self._stage.move_x_relative_percent(req.pose.position.x)
+            self._stage.move_y_relative_percent(req.pose.position.y)
+            self._stage.move_z_relative_percent(req.pose.position.z)
+            finished = False
+            while not finished:
+                moving = self._stage.moving()
+                finished = not any(moving)
+                if not finished:
+                    self._rate.sleep()
+            self._move_relative_percent_action.set_succeeded()
+        except ZaberError:
+            rospy.logwarn('zaber_stage_node _move_relative_percent_callback ZaberError')
 
     def _move_absolute_percent_callback(self,req):
         while not self._initialized:
@@ -249,16 +287,19 @@ class ZaberStageController(object):
         rospy.loginfo("move_absolute_percent: x={0}%, y={1}%, z={2}%".format(req.pose.position.x,
                                                                              req.pose.position.y,
                                                                              req.pose.position.z))
-        self._stage.move_x_absolute_percent(req.pose.position.x)
-        self._stage.move_y_absolute_percent(req.pose.position.y)
-        self._stage.move_z_absolute_percent(req.pose.position.z)
-        finished = False
-        while not finished:
-            moving = self._stage.moving()
-            finished = not any(moving)
-            if not finished:
-                self._rate.sleep()
-        self._move_absolute_percent_action.set_succeeded()
+        try:
+            self._stage.move_x_absolute_percent(req.pose.position.x)
+            self._stage.move_y_absolute_percent(req.pose.position.y)
+            self._stage.move_z_absolute_percent(req.pose.position.z)
+            finished = False
+            while not finished:
+                moving = self._stage.moving()
+                finished = not any(moving)
+                if not finished:
+                    self._rate.sleep()
+            self._move_absolute_percent_action.set_succeeded()
+        except ZaberError:
+            rospy.logwarn('zaber_stage_node _move_absolute_percent_callback ZaberError')
 
 
 if __name__ == '__main__':

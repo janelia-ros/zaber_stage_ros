@@ -84,7 +84,7 @@ class ZaberStageController(object):
             try:
                 serial_port = rospy.get_param('~serial_port', None)
                 if (serial_port is not None) and (len(serial_port) > 0):
-                    self._stage = ZaberStage(port=serial_port)
+                    self._stage = ZaberStage(use_ports=[serial_port])
                 else:
                     self._stage = ZaberStage()
                 if (x_serial_number is not None) and (x_alias is not None):
